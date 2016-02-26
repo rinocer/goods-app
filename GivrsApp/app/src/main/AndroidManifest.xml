@@ -28,7 +28,8 @@
         </activity>
         <activity android:name=".LoginActivity" />
         <activity android:name=".ProjectActivity" />
-        <activity android:name=".CreateProjectActivity"></activity>
+        <activity
+            android:name=".CreateProjectActivity"></activity>
     </application>
 
 </manifest>
