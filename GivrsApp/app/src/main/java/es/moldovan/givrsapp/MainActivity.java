@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private CognitoCachingCredentialsProvider credentialsProvider;
     private CognitoSyncManager syncClient;
     private LambdaInvokerFactory invokerFactory;
+    private LambdaInterface lambdaInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        initCloudProviders();
+    }
+
+    private void initCloudProviders(){
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),
                 "eu-west-1:69e18fb2-8c29-496c-9c5d-7e6cddbf9b17", // Identity Pool ID
@@ -76,14 +81,25 @@ public class MainActivity extends AppCompatActivity {
         // Create the Lambda proxy object with default Json data binder.
         // You can provide your own data binder by implementing
         // LambdaDataBinder
-        final LambdaInterface lambdaInterface = invokerFactory.build(LambdaInterface.class);
+        lambdaInterface = invokerFactory.build(LambdaInterface.class);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Dataset dataset = syncClient.openOrCreateDataset("users");
+        //Check if logged in
+        if(dataset.get("email") == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+        getProjects();
+    }
+
+    private void getProjects(){
         new AsyncTask<ListQuery, Void, List<Project>>() {
 
             @Override
             protected List<Project> doInBackground(ListQuery... params) {
-                // invoke "echo" method. In case it fails, it will throw a
-                // LambdaFunctionException.
                 try {
                     return lambdaInterface.list(params[0]);
                 } catch (LambdaFunctionException lfe) {
@@ -97,22 +113,9 @@ public class MainActivity extends AppCompatActivity {
                 if (result == null) {
                     return;
                 }
-
-                // Do a toast
                 Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
             }
         }.execute(new ListQuery());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Dataset dataset = syncClient.openOrCreateDataset("users");
-        //Check if logged in
-        if(dataset.get("email") == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-        }
     }
 
     @Override
