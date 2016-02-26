@@ -24,6 +24,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView mTextView;
+
         public ViewHolder(View v) {
             super(v);
             ButterKnife.bind(this, v);
@@ -38,7 +39,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     // Create new views (invoked by the layout manager)
     @Override
     public ProjectAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+                                                        int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_proj, parent, false);
@@ -53,13 +54,12 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         final ProjectItem feed = dataset.get(position);
         holder.textViewTitle.setText(feed.getTitle());
         holder.textViewContent.setText(Html.fromHtml(feed.getDescription().replaceAll("</?img[^>]*?>", "")));
-        if(feed.getImageUrl() != null && feed.getImageUrl().length() > 0){
+        if (feed.getImageUrl() != null && feed.getImageUrl().length() > 0) {
             holder.imageViewFeed.setVisibility(View.VISIBLE);
             Picasso.with(holder.imageViewFeed.getContext()).load(feed.getImageUrl()).into(holder.imageViewFeed);
             holder.textViewTitle.setTextColor(Color.WHITE);
             holder.textViewTitle.setShadowLayer(1f, 2f, 2f, Color.DKGRAY);
-        }
-        else {
+        } else {
             holder.imageViewFeed.setVisibility(View.GONE);
             holder.textViewTitle.setShadowLayer(0f, 0f, 0f, Color.BLACK);
             holder.textViewTitle.setTextColor(Color.BLACK);

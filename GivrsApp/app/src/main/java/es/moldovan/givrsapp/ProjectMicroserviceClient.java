@@ -11,8 +11,6 @@ import java.util.*;
 public interface ProjectMicroserviceClient {
 
     /**
-     *
-     *
      * @return void
      */
     @Operation(path = "/givr", method = "POST")

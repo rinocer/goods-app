@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void xxx(){
+    private void xxx() {
 
         // Initialize the Amazon Cognito credentials provider
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -60,7 +60,6 @@ public class LoginActivity extends AppCompatActivity {
                 "eu-west-1:69e18fb2-8c29-496c-9c5d-7e6cddbf9b17", // Identity Pool ID
                 Regions.EU_WEST_1 // Region
         );
-
 
 
         ApiClientFactory factory = new ApiClientFactory().credentialsProvider(credentialsProvider);

@@ -7,23 +7,23 @@ import java.util.Date;
  */
 public class ProjectItem {
 
-/*data:
-*
-*  name: String,
- image: String,
- description: String,
- initiator: String,
- instructions: String,
- date: { type: Date, default: Date.now },
- location: {
-   type: [Number],
-   index: '2d'
- },
- items: [{
-   name: String,
-   gived: Boolean,
-   givr: String
- }]*/
+    /*data:
+    *
+    *  name: String,
+     image: String,
+     description: String,
+     initiator: String,
+     instructions: String,
+     date: { type: Date, default: Date.now },
+     location: {
+       type: [Number],
+       index: '2d'
+     },
+     items: [{
+       name: String,
+       gived: Boolean,
+       givr: String
+     }]*/
     String pName;
     String pImg;
     String pDescription;
