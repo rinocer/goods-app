@@ -35,5 +35,7 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-lambda:2.+'
     compile "com.amazonaws:aws-android-sdk-apigateway-core:2.2.6+"
     compile 'com.google.android.gms:play-services-auth:8.3.0'
+    compile 'io.nlopez.smartlocation:library:3.2.1'
+
 
 }

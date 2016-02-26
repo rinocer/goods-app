@@ -13,7 +13,7 @@ public class ListQuery extends Operation {
         super("list");
     }
 
-    public ListQuery(String operation, double latitude, double longitude, double distance) {
+    public ListQuery(double latitude, double longitude, double distance) {
         super("list");
         this.latitude = latitude;
         this.longitude = longitude;

@@ -3,6 +3,7 @@ package es.moldovan.givrsapp;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -37,6 +38,8 @@ import java.util.Map;
 
 import es.moldovan.givrsapp.objs.ListQuery;
 import es.moldovan.givrsapp.objs.Project;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,10 +95,19 @@ public class MainActivity extends AppCompatActivity {
         if(dataset.get("email") == null) {
             startActivity(new Intent(this, LoginActivity.class));
         }
-        getProjects();
+
+        SmartLocation.with(this).location()
+            .oneFix()
+            .start(new OnLocationUpdatedListener() {
+                @Override
+                public void onLocationUpdated(Location location) {
+                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 10d);
+                    getProjects(listQuery);
+                }
+            });
     }
 
-    private void getProjects(){
+    private void getProjects(ListQuery listQuery){
         new AsyncTask<ListQuery, Void, List<Project>>() {
 
             @Override
@@ -115,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
             }
-        }.execute(new ListQuery());
+        }.execute(listQuery);
     }
 
     @Override
