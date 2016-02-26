@@ -62,11 +62,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         signInButton.setScopes(gso.getScopeArray());
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
 
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
-// options specified by gso.
+        // options specified by gso.
         googleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
