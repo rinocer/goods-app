@@ -60,11 +60,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_action_plus);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                startActivity(new Intent(MainActivity.this, CreateProjectActivity.class));
             }
         });
 
@@ -132,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 if (result == null) {
                     return;
                 }
-                Static.project = result[0];
-                startActivity(new Intent(MainActivity.this, ProjectActivity.class));
+                Log.d(TAG, "Got " + result.length + " projects");
+                //Static.project = result[0];
+                //startActivity(new Intent(MainActivity.this, ProjectActivity.class));
                 //Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
             }
         }.execute(listQuery);

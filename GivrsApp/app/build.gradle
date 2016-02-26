@@ -36,5 +36,8 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-apigateway-core:2.2.6+'
     compile 'com.google.android.gms:play-services-auth:8.3.0'
     compile 'com.karumi:dexter:2.2.1'
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:3.2.0@aar'){
+        transitive=true
+    }
     compile project(':smartlocation')
 }
