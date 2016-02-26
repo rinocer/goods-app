@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_id": "givr-1233",
+    "project_number": "818256681701",
+    "name": "Givr"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818256681701:android:36acc901f7d7cb09",
+        "client_id": "android:es.moldovan.givrsapp",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "es.moldovan.givrsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "818256681701-94svd697910drlmn3akkno5lifq3igvi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "es.moldovan.givrsapp",
+            "certificate_hash": "D46FFEF7ACB6D638A5F592316FB668F5B7D9A652"
+          }
+        },
+        {
+          "client_id": "818256681701-0am583334kcslvv32u0n4jdldekfb2j7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
