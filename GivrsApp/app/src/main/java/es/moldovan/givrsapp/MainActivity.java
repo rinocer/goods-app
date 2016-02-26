@@ -8,11 +8,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.amazonaws.AmazonWebServiceClient;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
@@ -32,6 +34,11 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
 
+    private static final String TAG = "MainActivity";
+
+    private CognitoCachingCredentialsProvider credentialsProvider;
+    private CognitoSyncManager syncClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +55,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startActivity(new Intent(this, LoginActivity.class));
+        credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "eu-west-1:69e18fb2-8c29-496c-9c5d-7e6cddbf9b17", // Identity Pool ID
+                Regions.EU_WEST_1 // Region
+        );
 
+        syncClient = new CognitoSyncManager(
+                getApplicationContext(),
+                Regions.EU_WEST_1, // Region
+                credentialsProvider);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        Dataset dataset = syncClient.openOrCreateDataset("users");
+        //Check if logged in
+        if(dataset.get("email") == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 
     @Override
