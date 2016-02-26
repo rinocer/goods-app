@@ -68,10 +68,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
         if(dataset.get("email") == null) {
             startActivity(new Intent(this, LoginActivity.class));
         }
-
         SmartLocation.with(this).location()
             .oneFix()
             .start(new OnLocationUpdatedListener() {
@@ -144,6 +139,23 @@ public class MainActivity extends AppCompatActivity {
         }.execute(listQuery);
     }
 
+    private void injectProjects(final List<Project> projects) {
+        ProjectAdapter projectAdapter = new ProjectAdapter(projects);
+
+        mRecyclerView.setAdapter(projectAdapter);
+        mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+                new RecyclerViewItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Project projectItem = projects.get(position);
+                Log.d(TAG, "onItemClick: " + projectItem.getName());
+
+                Intent intent = new Intent(MainActivity.this, ProjectActivity.class);
+                startActivity(intent);
+            }
+        }));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -162,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

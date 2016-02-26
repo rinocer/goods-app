@@ -23,11 +23,6 @@ import es.moldovan.givrsapp.objs.Project;
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHolder> {
     private List<Project> dataset;
 
-
-
-
-
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.imageViewProject)
         ImageView imageViewProject;
@@ -78,7 +73,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.textViewName.setText(project.getInitiator());
         holder.textViewContent.setText(project.getDescription());
         holder.textViewDistance.setText(this.getDistance());
-
     }
 
     private CharSequence getDistance() {
