@@ -3,6 +3,7 @@ package es.moldovan.givrsapp;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.auth.AWSCredentials;
@@ -20,6 +22,8 @@ import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
 import com.amazonaws.mobileconnectors.cognito.Dataset;
 import com.amazonaws.mobileconnectors.cognito.DefaultSyncCallback;
+import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunctionException;
+import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
 import com.amazonaws.regions.Regions;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.api.Auth;
@@ -31,6 +35,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.moldovan.givrsapp.objs.ListQuery;
+import es.moldovan.givrsapp.objs.Project;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -38,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CognitoCachingCredentialsProvider credentialsProvider;
     private CognitoSyncManager syncClient;
+    private LambdaInvokerFactory invokerFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +69,39 @@ public class MainActivity extends AppCompatActivity {
                 Regions.EU_WEST_1 // Region
         );
 
-        syncClient = new CognitoSyncManager(
-                getApplicationContext(),
-                Regions.EU_WEST_1, // Region
-                credentialsProvider);
+        syncClient = new CognitoSyncManager(getApplicationContext(), Regions.EU_WEST_1, credentialsProvider);
+
+        invokerFactory = new LambdaInvokerFactory(getApplicationContext(), Regions.EU_WEST_1, credentialsProvider);
+
+        // Create the Lambda proxy object with default Json data binder.
+        // You can provide your own data binder by implementing
+        // LambdaDataBinder
+        final LambdaInterface lambdaInterface = invokerFactory.build(LambdaInterface.class);
+
+        new AsyncTask<ListQuery, Void, List<Project>>() {
+
+            @Override
+            protected List<Project> doInBackground(ListQuery... params) {
+                // invoke "echo" method. In case it fails, it will throw a
+                // LambdaFunctionException.
+                try {
+                    return lambdaInterface.list(params[0]);
+                } catch (LambdaFunctionException lfe) {
+                    Log.e(TAG, "Failed to invoke echo", lfe);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(List<Project> result) {
+                if (result == null) {
+                    return;
+                }
+
+                // Do a toast
+                Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
+            }
+        }.execute(new ListQuery());
     }
 
     @Override

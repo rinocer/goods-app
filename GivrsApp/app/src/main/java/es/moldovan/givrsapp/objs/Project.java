@@ -9,6 +9,7 @@ public class Project extends Operation {
     private String name, image, description, initiator, instructions;
     private Double[] location;
     private List<Item> items;
+    private String _id;
 
     public Project(String name, String image, String description, String initiator, String instructions, Double[] location, List<Item> items) {
         super("create");
@@ -80,22 +81,12 @@ public class Project extends Operation {
     public void setItems(List<Item> items) {
         this.items = items;
     }
-}
 
-/*
-  name: String,
-  image: String,
-  description: String,
-  initiator: String,
-  instructions: String,
-  date: { type: Date, default: Date.now },
-  location: {
-    type: [Number],
-    index: '2d'
-  },
-  items: [{
-    name: String,
-    gived: Boolean,
-    givr: String
-  }]
- */
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+}
