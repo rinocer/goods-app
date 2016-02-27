@@ -31,6 +31,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ProjectActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.Overlay"
             android:screenOrientation="portrait" />
         <activity
             android:name=".CreateProjectActivity"

@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onLocationUpdated(Location location) {
                     Log.e(TAG, location.toString());
-                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 100000000d);
+                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 1000d);
                     getProjects(listQuery);
                 }
             });
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(View view, int position) {
                         Project projectItem = projects.get(position);
                         Log.d(TAG, "onItemClick: " + projectItem.getName());
-
+                        Static.project = projectItem;
                         Intent intent = new Intent(MainActivity.this, ProjectActivity.class);
                         startActivity(intent);
                     }
