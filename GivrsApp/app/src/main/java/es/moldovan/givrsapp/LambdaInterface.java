@@ -4,6 +4,7 @@ import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunction;
 
 import java.util.List;
 
+import es.moldovan.givrsapp.objs.Join;
 import es.moldovan.givrsapp.objs.ListQuery;
 import es.moldovan.givrsapp.objs.Project;
 import es.moldovan.givrsapp.objs.SearchQuery;
@@ -21,4 +22,7 @@ public interface LambdaInterface {
 
     @LambdaFunction(functionName = "givr")
     Project[] search(SearchQuery searchQuery);
+
+    @LambdaFunction(functionName = "givr")
+    Project join(Join join);
 }

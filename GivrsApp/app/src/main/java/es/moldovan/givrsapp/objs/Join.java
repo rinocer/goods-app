@@ -7,7 +7,7 @@ public class Join extends Operation {
     private String project, item, givr;
 
     public Join(String project, String item, String givr){
-        super("join");
+        super("give");
         this.project = project;
         this.item = item;
         this.givr = givr;

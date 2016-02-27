@@ -1,13 +1,16 @@
 package es.moldovan.givrsapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
 import com.amazonaws.mobileconnectors.cognito.Dataset;
+import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunctionException;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
 import com.amazonaws.regions.Regions;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -36,6 +40,7 @@ import java.util.Arrays;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import es.moldovan.givrsapp.objs.Item;
+import es.moldovan.givrsapp.objs.Join;
 import es.moldovan.givrsapp.objs.Project;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -46,6 +51,7 @@ import io.nlopez.smartlocation.SmartLocation;
 public class ProjectActivity extends AppCompatActivity {
 
 
+    private static final String TAG = "ProjectActivity";
     private Project project;
 
     @Bind(R.id.projectImage)
@@ -70,6 +76,8 @@ public class ProjectActivity extends AppCompatActivity {
     private LambdaInvokerFactory invokerFactory;
     private LambdaInterface lambdaInterface;
     private Dataset dataset;
+
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +125,6 @@ public class ProjectActivity extends AppCompatActivity {
 
         initCloudProviders();
         getData();
-        setUpMap();
         bindData();
     }
 
@@ -149,23 +156,27 @@ public class ProjectActivity extends AppCompatActivity {
             int dpAsPixels = (int) (8 * scale + 0.5f);
             check.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
 
-            check.setText(item.getName());
-            check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    check.setChecked(true);
-                    check.setEnabled(false);
-                    projectInstructionsLayout.setVisibility(ImageView.VISIBLE);
-                    Snackbar.make(imageViewProject, "Awesome, check the delivery instructions!", Snackbar.LENGTH_SHORT).show();
-                }
-            });
-
             if(item.getGivr() != null){
                 check.setChecked(true);
                 check.setClickable(false);
                 if(item.getGivr().equals(dataset.get("name")))
                     projectInstructionsLayout.setVisibility(ImageView.VISIBLE);
             }
+
+            check.setText(item.getName());
+            check.setTag(item.get_id());
+            check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    check.setChecked(true);
+                    check.setClickable(false);
+                    join(check.getTag().toString());
+                    projectInstructionsLayout.setVisibility(ImageView.VISIBLE);
+                    Snackbar.make(imageViewProject, "Awesome, check the delivery instructions!", Snackbar.LENGTH_SHORT).show();
+                }
+            });
+
+
 
             projectCheckboxLayout.addView(check);
         }
@@ -177,9 +188,46 @@ public class ProjectActivity extends AppCompatActivity {
         Picasso.with(imageViewProject.getContext()).load(image).into(imageViewProject);
     }
 
-    private void setUpMap(){
 
+    private void join(String itemId) {
+        Join join = new Join(project.get_id(), itemId, dataset.get("name"));
+        new AsyncTask<Join, Void, Project>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressDialog = new ProgressDialog(ProjectActivity.this);
+                progressDialog.setTitle("Just a sec");
+                progressDialog.setMessage("Work in progress");
+                progressDialog.setProgressStyle(progressDialog.STYLE_SPINNER);
+                progressDialog.show();
+            }
+
+            @Override
+            protected Project doInBackground(Join... params) {
+                try {
+                    return lambdaInterface.join(params[0]);
+                } catch (LambdaFunctionException lfe) {
+                    Log.e(TAG, "Failed to invoke echo", lfe);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Project result) {
+                progressDialog.dismiss();
+                if (result == null) {
+                    return;
+                }
+                Log.d(TAG, "Got " + result.toString() + " projects");
+                //Static.project = result[0];
+                //startActivity(new Intent(MainActivity.this, ProjectActivity.class));
+                //Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
+            }
+        }.execute(join);
     }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_project, menu);
