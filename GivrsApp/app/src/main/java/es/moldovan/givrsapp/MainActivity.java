@@ -2,20 +2,27 @@ package es.moldovan.givrsapp;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonWebServiceClient;
@@ -36,6 +43,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import es.moldovan.givrsapp.objs.ListQuery;
 import es.moldovan.givrsapp.objs.Project;
+import es.moldovan.givrsapp.objs.SearchQuery;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
@@ -46,10 +54,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.my_recycler_view)
     RecyclerView mRecyclerView;
+
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    @Bind(R.id.mainProgressBar)
+    ProgressBar progressBar;
+
     private RecyclerView.Adapter mAdapter;
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 
-
+    private Location actualLocation;
     private static final String TAG = "MainActivity";
 
     private CognitoCachingCredentialsProvider credentialsProvider;
@@ -57,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private LambdaInvokerFactory invokerFactory;
     private LambdaInterface lambdaInterface;
 
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
+    private SearchView searchView;
 
+    private List<Project> firstProjects;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,8 +130,10 @@ public class MainActivity extends AppCompatActivity {
         SmartLocation.with(this).location()
             .oneFix()
             .start(new OnLocationUpdatedListener() {
+
                 @Override
                 public void onLocationUpdated(Location location) {
+                    actualLocation = location;
                     Log.e(TAG, location.toString());
                     ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 100000000d);
                     getProjects(listQuery);
@@ -126,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getProjects(ListQuery listQuery){
         new AsyncTask<ListQuery, Void, Project[]>() {
+
 
             @Override
             protected Project[] doInBackground(ListQuery... params) {
@@ -143,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Log.d(TAG, "Got " + result.length + " projects");
+                firstProjects = Arrays.asList(result);
                 injectProjects(Arrays.asList(result));
                 //Static.project = result[0];
                 //startActivity(new Intent(MainActivity.this, ProjectActivity.class));
@@ -152,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void injectProjects(final List<Project> projects) {
+        mRecyclerView.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
         ProjectAdapter projectAdapter = new ProjectAdapter(projects, SmartLocation.with(this).location().getLastLocation());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(projectAdapter);
@@ -170,8 +191,27 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.e(TAG, query);
+                searchProject(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.e(TAG, newText);
+                if(TextUtils.isEmpty(newText)){
+                    injectProjects(firstProjects);
+                }
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -188,4 +228,32 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void searchProject(String query){
+        mRecyclerView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        SearchQuery searchQuery = new SearchQuery(query);
+        new AsyncTask<SearchQuery, Void, Project[]>() {
+
+            @Override
+            protected Project[] doInBackground(SearchQuery... params) {
+                try {
+                    return lambdaInterface.search(params[0]);
+                } catch (LambdaFunctionException lfe) {
+                    Log.e(TAG, "Failed to invoke echo", lfe);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Project[] result) {
+                if (result == null) {
+                    return;
+                }
+                Log.d(TAG, "Got " + result.length + " projects");
+                injectProjects(Arrays.asList(result));
+            }
+        }.execute(searchQuery);
+    }
+
 }
