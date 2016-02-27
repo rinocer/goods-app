@@ -13,12 +13,16 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.BindInt;
 import butterknife.ButterKnife;
+import es.moldovan.givrsapp.objs.Item;
 import es.moldovan.givrsapp.objs.Project;
 import io.nlopez.smartlocation.SmartLocation;
+import me.gujun.android.taggroup.TagGroup;
 
 /**
  * Created by OvidiuMircea on 26/02/2016.
@@ -38,6 +42,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         TextView textViewName;
         @Bind(R.id.textViewDistance)
         TextView textViewDistance;
+        @Bind(R.id.tag_group)
+        TagGroup tagGroup;
+
         public ViewHolder(View v) {
             super(v);
             ButterKnife.bind(this, v);
@@ -67,6 +74,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.textViewTitle.setText(project.getName());
         if (project.getImage() != null && project.getImage().length() > 0) {
             holder.imageViewProject.setVisibility(View.VISIBLE);
+            holder.imageViewProject.setColorFilter(Color.parseColor("#4400bcd4"));
             Picasso.with(holder.imageViewProject.getContext()).load(project.getImage()).into(holder.imageViewProject);
             holder.textViewTitle.setTextColor(Color.WHITE);
             holder.textViewTitle.setShadowLayer(1f, 2f, 2f, Color.DKGRAY);
@@ -78,6 +86,12 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.textViewName.setText(project.getInitiator());
         holder.textViewContent.setText(project.getDescription());
         holder.textViewDistance.setText(this.getDistance(project.getLocation()));
+
+        List<String> tags = new ArrayList<String>();
+        for (Item item : project.getItems()) {
+            tags.add(item.getName());
+        }
+        holder.tagGroup.setTags(tags);
     }
 
     private CharSequence getDistance(Double[] projLocation) {
