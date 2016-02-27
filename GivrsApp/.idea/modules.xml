@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GivrsApp.iml" filepath="$PROJECT_DIR$/GivrsApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/smartlocation/smartlocation.iml" filepath="$PROJECT_DIR$/smartlocation/smartlocation.iml" />
     </modules>
   </component>
 </project>

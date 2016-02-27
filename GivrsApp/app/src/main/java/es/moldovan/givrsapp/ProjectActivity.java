@@ -1,12 +1,15 @@
 package es.moldovan.givrsapp;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import butterknife.ButterKnife;
 import es.moldovan.givrsapp.objs.Project;
 
-public class ProjectActivity extends AppCompatActivity {
+/**
+ * Created by OvidiuMircea on 26/02/2016.
+ */
+public class ProjectActivity  extends AppCompatActivity {
 
     private Project project;
 
@@ -17,6 +20,7 @@ public class ProjectActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         getData();
+
         bindData();
     }
 

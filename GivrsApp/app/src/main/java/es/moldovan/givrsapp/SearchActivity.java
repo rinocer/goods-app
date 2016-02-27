@@ -1,7 +1,5 @@
 package es.moldovan.givrsapp;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -13,18 +11,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
-import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
 import com.amazonaws.mobileconnectors.cognito.Dataset;
-import com.amazonaws.mobileconnectors.cognito.DefaultSyncCallback;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunctionException;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
 import com.amazonaws.regions.Regions;
@@ -38,51 +31,46 @@ import es.moldovan.givrsapp.objs.ListQuery;
 import es.moldovan.givrsapp.objs.Project;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
-import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
-import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesWithFallbackProvider;
-import io.nlopez.smartlocation.location.providers.LocationManagerProvider;
 
-public class MainActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity {
 
-    @Bind(R.id.my_recycler_view)
+    @Bind(R.id.my_recycler_view_s)
     RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "SearchActivity";
 
-    private CognitoCachingCredentialsProvider credentialsProvider;
-    private CognitoSyncManager syncClient;
     private LambdaInvokerFactory invokerFactory;
     private LambdaInterface lambdaInterface;
 
-    @Bind(R.id.toolbar)
+    @Bind(R.id.toolbar_s)
     Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.item_search);
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_s);
         fab.setImageResource(R.drawable.ic_action_plus);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                startActivity(new Intent(MainActivity.this, CreateProjectActivity.class));
+                startActivity(new Intent(SearchActivity.this, CreateProjectActivity.class));
             }
         });
 
-        initCloudProviders();
+     //   initCloudProviders();
     }
 
-    private void initCloudProviders(){
+   /* private void initCloudProviders(){
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),
                 "eu-west-1:69e18fb2-8c29-496c-9c5d-7e6cddbf9b17", // Identity Pool ID
@@ -108,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
         }
         else getLocation();
-    }
+
+    }*/
 
     private void getLocation(){
         Log.d(TAG, "Waiting location");
@@ -152,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void injectProjects(final List<Project> projects) {
-        ProjectAdapter projectAdapter = new ProjectAdapter(projects, SmartLocation.with(this).location().getLastLocation());
+        ProjectAdapter projectAdapter = new ProjectAdapter(projects,  SmartLocation.with(this).location().getLastLocation());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(projectAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
@@ -162,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                         Project projectItem = projects.get(position);
                         Log.d(TAG, "onItemClick: " + projectItem.getName());
 
-                        Intent intent = new Intent(MainActivity.this, ProjectActivity.class);
+                        Intent intent = new Intent(SearchActivity.this, ProjectActivity.class);
                         startActivity(intent);
                     }
         }));

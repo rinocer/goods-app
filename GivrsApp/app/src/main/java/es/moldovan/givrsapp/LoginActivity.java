@@ -63,7 +63,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestServerAuthCode("818256681701-0am583334kcslvv32u0n4jdldekfb2j7.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 
@@ -87,8 +86,27 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.sign_in_button)
     public void clickOnSign(){
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "eu-west-1:69e18fb2-8c29-496c-9c5d-7e6cddbf9b17", // Identity Pool ID
+                Regions.EU_WEST_1 // Region
+        );
+
+        CognitoSyncManager syncClient = new CognitoSyncManager(
+                getApplicationContext(),
+                Regions.EU_WEST_1, // Region
+                credentialsProvider);
+
+        // Create a record in a dataset and synchronize with the server
+        Dataset dataset = syncClient.openOrCreateDataset("users");
+        dataset.put("email", "ovidiu5891@gmail.com");
+        dataset.put("name", "Ovidiu Mircea Moldovan");
+        dataset.synchronize(new DefaultSyncCallback() {
+            @Override
+            public void onSuccess(Dataset dataset, List newRecords) {
+                finish();
+            }
+        });
     }
 
     @Override
