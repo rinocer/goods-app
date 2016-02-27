@@ -8,10 +8,9 @@ public class Item{
     private String name, givr;
     private String _id;
 
-    public Item(boolean given, String name, String givr) {
+    public Item(boolean given, String name) {
         this.given = given;
         this.name = name;
-        this.givr = givr;
     }
 
     public boolean isGiven() {

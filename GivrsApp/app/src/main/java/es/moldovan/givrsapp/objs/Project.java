@@ -1,5 +1,6 @@
 package es.moldovan.givrsapp.objs;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class Project extends Operation {
         this.items = items;
     }
 
-    public Project(String operation) {
+    public Project() {
         super("create");
     }
 
@@ -88,5 +89,19 @@ public class Project extends Operation {
 
     public void set_id(String _id) {
         this._id = _id;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", description='" + description + '\'' +
+                ", initiator='" + initiator + '\'' +
+                ", instructions='" + instructions + '\'' +
+                ", location=" + Arrays.toString(location) +
+                ", items=" + items +
+                ", _id='" + _id + '\'' +
+                '}';
     }
 }
