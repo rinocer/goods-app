@@ -40,8 +40,8 @@ import me.gujun.android.taggroup.TagGroup;
 
 public class CreateProjectActivity extends AppCompatActivity {
 
-    private static final String TAG = "CreteProject"
-            ;
+    private static final String TAG = "CreteProject";
+
     @Bind(R.id.mapview)
     MapView mapView;
     @Bind(R.id.tag_group)
@@ -105,8 +105,8 @@ public class CreateProjectActivity extends AppCompatActivity {
     private void setUpMap() {
         mapView.setAccessToken("pk.eyJ1IjoibWFyaWFubW9sZG92YW4iLCJhIjoiY2llajJleDdxMDA0dHNtbHpieHZ1OGE5NiJ9.iQxkMy2s65B-YGJfCuYe8A");
         mapView.setStyleUrl(Style.EMERALD);
-        mapView.setCenterCoordinate(new LatLng(38.91318, -77.03257));
-        mapView.setZoomLevel(10);
+        mapView.setLatLng(new LatLng(38.91318, -77.03257));
+        mapView.setZoom(10);
         mapView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -127,7 +127,8 @@ public class CreateProjectActivity extends AppCompatActivity {
                 .start(new OnLocationUpdatedListener() {
                     @Override
                     public void onLocationUpdated(Location location) {
-                        mapView.setCenterCoordinate(new LatLng(location.getLatitude(), location.getLongitude()));
+                        if(mapView != null)
+                            mapView.setLatLng(new LatLng(location.getLatitude(), location.getLongitude()), true);
                     }
                 });
 
@@ -174,7 +175,8 @@ public class CreateProjectActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-        progressDialog.dismiss();
+        if(progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 
     @Override

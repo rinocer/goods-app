@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         else getLocation();
     }
 
-    private void getLocation(){
+    private void getLocation() {
         Log.d(TAG, "Waiting location");
         SmartLocation.with(this).location()
             .oneFix()
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onLocationUpdated(Location location) {
                     Log.e(TAG, location.toString());
-                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 1000d);
+                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 10000d);
                     getProjects(listQuery);
                 }
             });
