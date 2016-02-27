@@ -10,8 +10,10 @@
         android:title="Search"/>
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
+        android:id="@+id/action_info"
+        android:icon="@drawable/ic_action_info"
+        app:showAsAction="always"
+        android:title="Info"></item>
+
+
 </menu>

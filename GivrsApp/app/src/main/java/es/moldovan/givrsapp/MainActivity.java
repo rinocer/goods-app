@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -52,29 +54,27 @@ import io.nlopez.smartlocation.location.providers.LocationManagerProvider;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     @Bind(R.id.my_recycler_view)
     RecyclerView mRecyclerView;
-
     @Bind(R.id.toolbar)
     Toolbar toolbar;
-
     @Bind(R.id.mainProgressBar)
     ProgressBar progressBar;
 
-    private RecyclerView.Adapter mAdapter;
-    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+    private SearchView searchView;
 
-    private Location actualLocation;
-    private static final String TAG = "MainActivity";
+    private RecyclerView.Adapter mAdapter;
+    private LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 
     private CognitoCachingCredentialsProvider credentialsProvider;
     private CognitoSyncManager syncClient;
     private LambdaInvokerFactory invokerFactory;
     private LambdaInterface lambdaInterface;
 
-    private SearchView searchView;
-
     private List<Project> firstProjects;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onLocationUpdated(Location location) {
-                    actualLocation = location;
                     Log.e(TAG, location.toString());
                     ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 100000000d);
                     getProjects(listQuery);
@@ -163,9 +162,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Got " + result.length + " projects");
                 firstProjects = Arrays.asList(result);
                 injectProjects(Arrays.asList(result));
-                //Static.project = result[0];
-                //startActivity(new Intent(MainActivity.this, ProjectActivity.class));
-                //Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
             }
         }.execute(listQuery);
     }
@@ -223,10 +219,25 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_info) {
+            showInfoDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showInfoDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle("Info")
+            .setMessage("App developed in Madrid edition of HackForGood 2016. Marian Moldovan, Ovidiu Moldovan and Loredana Stan. Code at github.com/rinocer")
+            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            })
+            .setIcon(R.mipmap.ic_launcher)
+            .show();
     }
 
     private void searchProject(String query){
