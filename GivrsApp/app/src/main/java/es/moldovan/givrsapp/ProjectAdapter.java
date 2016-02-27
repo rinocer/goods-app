@@ -80,15 +80,22 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     }
 
     private CharSequence getDistance(Double[] projLocation) {
-        double distance;
+        Double distance;
         Location locationA = new Location("point A");
         locationA.setLatitude(projLocation[1]);
         locationA.setLongitude(projLocation[0]);
+        distance = Double.valueOf(locationA.distanceTo(userLocation));
+        String goTo="Not known";
+        if (distance!=null) {
+            if (distance < 1000) {
+                goTo = "Menos de 1 kilómetro";
+            }
+            else {
+                goTo = String.valueOf(distance.intValue());
+            }
+        }
 
-
-        distance = locationA.distanceTo(userLocation);
-
-        return String.valueOf(distance);
+        return goTo;
     }
 
     @Override
