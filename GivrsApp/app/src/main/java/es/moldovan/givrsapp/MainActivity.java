@@ -28,15 +28,9 @@ import com.amazonaws.mobileconnectors.cognito.DefaultSyncCallback;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaFunctionException;
 import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
 import com.amazonaws.regions.Regions;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -44,13 +38,17 @@ import es.moldovan.givrsapp.objs.ListQuery;
 import es.moldovan.givrsapp.objs.Project;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesWithFallbackProvider;
+import io.nlopez.smartlocation.location.providers.LocationManagerProvider;
 
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.my_recycler_view)
     RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+
 
     private static final String TAG = "MainActivity";
 
@@ -59,21 +57,25 @@ public class MainActivity extends AppCompatActivity {
     private LambdaInvokerFactory invokerFactory;
     private LambdaInterface lambdaInterface;
 
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_action_plus);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                startActivity(new Intent(MainActivity.this, CreateProjectActivity.class));
             }
         });
 
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         // Create the Lambda proxy object with default Json data binder.
         // You can provide your own data binder by implementing
         // LambdaDataBinder
-        lambdaInterface = invokerFactory.build(LambdaInterface.class);
+        lambdaInterface = invokerFactory.build(LambdaInterface.class, new LambdaJsonBinder());
     }
 
     @Override
@@ -105,22 +107,29 @@ public class MainActivity extends AppCompatActivity {
         if(dataset.get("email") == null) {
             startActivity(new Intent(this, LoginActivity.class));
         }
+        else getLocation();
+
+    }
+
+    private void getLocation(){
+        Log.d(TAG, "Waiting location");
         SmartLocation.with(this).location()
             .oneFix()
             .start(new OnLocationUpdatedListener() {
                 @Override
                 public void onLocationUpdated(Location location) {
-                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 10d);
+                    Log.e(TAG, location.toString());
+                    ListQuery listQuery = new ListQuery(location.getLatitude(), location.getLongitude(), 100000000d);
                     getProjects(listQuery);
                 }
             });
     }
 
     private void getProjects(ListQuery listQuery){
-        new AsyncTask<ListQuery, Void, List<Project>>() {
+        new AsyncTask<ListQuery, Void, Project[]>() {
 
             @Override
-            protected List<Project> doInBackground(ListQuery... params) {
+            protected Project[] doInBackground(ListQuery... params) {
                 try {
                     return lambdaInterface.list(params[0]);
                 } catch (LambdaFunctionException lfe) {
@@ -130,29 +139,33 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute(List<Project> result) {
+            protected void onPostExecute(Project[] result) {
                 if (result == null) {
                     return;
                 }
-                Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Got " + result.length + " projects");
+                injectProjects(Arrays.asList(result));
+                //Static.project = result[0];
+                //startActivity(new Intent(MainActivity.this, ProjectActivity.class));
+                //Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_LONG).show();
             }
         }.execute(listQuery);
     }
 
     private void injectProjects(final List<Project> projects) {
         ProjectAdapter projectAdapter = new ProjectAdapter(projects);
-
+        mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(projectAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
                 new RecyclerViewItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Project projectItem = projects.get(position);
-                Log.d(TAG, "onItemClick: " + projectItem.getName());
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Project projectItem = projects.get(position);
+                        Log.d(TAG, "onItemClick: " + projectItem.getName());
 
-                Intent intent = new Intent(MainActivity.this, ProjectActivity.class);
-                startActivity(intent);
-            }
+                        Intent intent = new Intent(MainActivity.this, ProjectActivity.class);
+                        startActivity(intent);
+                    }
         }));
     }
 

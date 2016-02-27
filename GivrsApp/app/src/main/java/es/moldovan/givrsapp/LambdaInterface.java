@@ -16,5 +16,5 @@ public interface LambdaInterface {
     Project create(Project project);
 
     @LambdaFunction(functionName = "givr")
-    List<Project> list(ListQuery listQuery);
+    Project[] list(ListQuery listQuery);
 }
