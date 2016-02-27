@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
         }
         else getLocation();
-
     }
 
     private void getLocation(){
@@ -153,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void injectProjects(final List<Project> projects) {
-        ProjectAdapter projectAdapter = new ProjectAdapter(projects);
+        ProjectAdapter projectAdapter = new ProjectAdapter(projects, SmartLocation.with(this).location().getLastLocation());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(projectAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,

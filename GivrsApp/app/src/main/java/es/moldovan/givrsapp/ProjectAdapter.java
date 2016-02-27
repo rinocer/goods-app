@@ -1,6 +1,7 @@
 package es.moldovan.givrsapp;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -16,11 +17,13 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import es.moldovan.givrsapp.objs.Project;
+import io.nlopez.smartlocation.SmartLocation;
 
 /**
  * Created by OvidiuMircea on 26/02/2016.
  */
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHolder> {
+    private Location userLocation;
     private List<Project> dataset;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -41,8 +44,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ProjectAdapter(List<Project> dataset) {
+    public ProjectAdapter(List<Project> dataset, Location userLocation) {
         this.dataset = dataset;
+        this.userLocation = userLocation;
     }
 
     // Create new views (invoked by the layout manager)
@@ -72,11 +76,19 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         }
         holder.textViewName.setText(project.getInitiator());
         holder.textViewContent.setText(project.getDescription());
-        holder.textViewDistance.setText(this.getDistance());
+        holder.textViewDistance.setText(this.getDistance(project.getLocation()));
     }
 
-    private CharSequence getDistance() {
-        return null;
+    private CharSequence getDistance(Double[] projLocation) {
+        double distance;
+        Location locationA = new Location("point A");
+        locationA.setLatitude(projLocation[1]);
+        locationA.setLongitude(projLocation[0]);
+
+
+        distance = locationA.distanceTo(userLocation);
+
+        return String.valueOf(distance);
     }
 
     @Override

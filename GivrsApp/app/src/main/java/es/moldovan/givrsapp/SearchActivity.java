@@ -141,7 +141,7 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void injectProjects(final List<Project> projects) {
-        ProjectAdapter projectAdapter = new ProjectAdapter(projects);
+        ProjectAdapter projectAdapter = new ProjectAdapter(projects,  SmartLocation.with(this).location().getLastLocation());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(projectAdapter);
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
