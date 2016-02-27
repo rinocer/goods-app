@@ -2,11 +2,15 @@ package es.moldovan.givrsapp;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
@@ -44,6 +48,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @Bind(R.id.sign_in_button)
     SignInButton signInButton;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +56,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
+        getSupportActionBar().hide();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window w = getWindow(); // in Activity's onCreate() for instance
+            w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestServerAuthCode("818256681701-0am583334kcslvv32u0n4jdldekfb2j7.apps.googleusercontent.com")
                 .requestEmail()
@@ -58,6 +69,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setColorScheme(SignInButton.COLOR_DARK);
+
         //String[] scopes = new String[]{Scopes.PLUS_LOGIN, Scopes.PLUS_ME, Scopes.EMAIL};
         signInButton.setScopes(gso.getScopeArray());
 
@@ -93,6 +105,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private void handleSignInResult(GoogleSignInResult result) {
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
+
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Just a sec");
+            progressDialog.setMessage("Work in progress");
+            progressDialog.setProgressStyle(progressDialog.STYLE_SPINNER);
+            progressDialog.show();
+
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
             Log.d(TAG, "Logged in");
@@ -127,6 +146,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 @Override
                 public void onSuccess(Dataset dataset, List newRecords) {
                     finish();
+                    progressDialog.dismiss();
                 }
             });
 
