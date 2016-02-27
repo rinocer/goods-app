@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import butterknife.Bind;
@@ -85,16 +86,17 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         locationA.setLatitude(projLocation[1]);
         locationA.setLongitude(projLocation[0]);
         distance = Double.valueOf(locationA.distanceTo(userLocation));
+
+        DecimalFormat df = new DecimalFormat("0.0");
         String goTo="Not known";
         if (distance!=null) {
             if (distance < 1000) {
                 goTo = "Menos de 1 kilómetro";
             }
             else {
-                goTo = String.valueOf(distance.intValue());
+                goTo = String.valueOf(df.format(distance/1000))+" Kms";
             }
         }
-
         return goTo;
     }
 
